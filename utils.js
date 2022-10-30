@@ -14,8 +14,6 @@ async function waitLine(prompt) {
     });
 }
 
-
-
 async function checkFileExists(filePath) {
     try {
         await fs.promises.access(filePath);
@@ -36,8 +34,7 @@ async function runCmd(cmd, args, quite) {
         }
         console.log(bl.toString())
     } catch (e) {
-        console.log(cmd, args);
-        throw e.stderr.toString();
+        console.error("[ERROR]", cmd, args);
     }
 }
 
