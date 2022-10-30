@@ -3,6 +3,8 @@
     "version": "1.0",
     "type": "commonjs",
     "dependencies": {
+        "await-spawn": "^4.0.2",
+        "iconv-lite": "^0.6.3",
         "laf-cli": "^0.8.5"
     },
     "bin": "./main.js",

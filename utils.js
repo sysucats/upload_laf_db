@@ -1,6 +1,5 @@
 const fs = require("node:fs");
-const {promisify} = require('util');
-const exec = promisify(require('child_process').exec);
+const spawn = require('await-spawn')
 const { resolve } = require("node:path");
 const readline = require('readline').createInterface({
     input: process.stdin,
@@ -29,17 +28,30 @@ async function checkFileExists(filePath) {
     }
 }
 
-async function runCmd(cmd, quite) {
-    var {stdout, stderr} = await exec(cmd);
-    if (quite) {
-        return;
+async function runCmd(cmd, args, quite) {
+    try {
+        const bl = await spawn(cmd, args, {shell: true})
+        if (quite) {
+            return;
+        }
+        console.log(bl.toString())
+    } catch (e) {
+        console.log(cmd, args);
+        throw e.stderr.toString();
     }
-    console.log(stdout);
-    console.error(stderr);
 }
+
+function escapeHtml(unsafe) {
+    return unsafe
+        .replace(/'/g, "'QUOT")
+        .replace(/&/g, "'AND")
+        .replace(/</g, "'LT")
+        .replace(/>/g, "'GT")
+ }
 
 module.exports = {
     waitLine,
     checkFileExists,
-    runCmd
+    runCmd,
+    escapeHtml
 }

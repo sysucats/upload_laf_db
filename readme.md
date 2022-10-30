@@ -1,5 +1,6 @@
 # 依赖 Dependence
 * nodejs 16.x+
+* 云函数：`addRecords.ts`
 
 # 使用方式 Usage
 ## 可执行文件 Executable

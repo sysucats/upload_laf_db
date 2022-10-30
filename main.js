@@ -2,14 +2,13 @@ const fs = require("node:fs");
 const path = require("path");
 const {checkFileExists, waitLine, runCmd} = require("./utils");
 const { exit } = require("node:process");
-const { json } = require("stream/consumers");
 
 
 // 输入conf
 const ConfPath = './config.json';
 const DefaultLafServer = "https://console.lafyun.com";
 const DefaultUpParrallelNum = 10;
-const DefaultUpStep = 10;
+const DefaultUpStep = 1;
 async function inputConf() {
     conf = {
         "comment": [
@@ -49,12 +48,9 @@ async function readConfig() {
 }
 
 async function initLaf() {
-    loginCmd = `laf login -u ${conf.username} -p ${conf.password} -r ${conf.server}`
-    listCmd = "laf list"
-    initCmd = `laf init -s ${conf.appid}`
-    await runCmd(loginCmd);
-    await runCmd(listCmd);
-    await runCmd(initCmd);
+    await runCmd("laf", ["login", "-u", conf.username, "-p", conf.password, "-r", conf.server]);
+    await runCmd("laf", ["list"]);
+    await runCmd("laf", ["init", "-s", conf.appid]);
 }
 
 
@@ -69,12 +65,15 @@ async function uploadLines(lines, coll, threadID) {
 
         count += batch.length;
 
-        const pack = JSON.stringify({
+        var batchStr = JSON.stringify(batch);
+        batchStr = Buffer.from(batchStr, "utf-8").toString('base64');
+
+        var pack = JSON.stringify({
             collection: coll,
-            data: batch
-        }).replaceAll("\"", "\\\"")
-        const cmd = `laf fn invoke addRecords "${pack}"`;
-        await runCmd(cmd, true);
+            data: batchStr
+        })
+        pack = JSON.stringify(pack);
+        await runCmd("laf", ["fn", "invoke", "addRecords", pack], true);
         console.log(`[thread-${threadID}][coll-${coll}] ${count}/${lines.length} done.`)
     }
 }
@@ -87,7 +86,7 @@ async function uploadColl(coll) {
         console.log(`[ERROR] Data file not exist! file path: "${collFilePath}"`);
         return false;
     }
-    const lines = fs.readFileSync(collFilePath, 'utf-8').split("\n");
+    const lines = fs.readFileSync(collFilePath, 'utf-8').trim().split("\n");
 
     var poolLines = [];
     for (let i = 0; i < lines.length; i++) {
@@ -95,7 +94,12 @@ async function uploadColl(coll) {
         if (poolLines.length < conf.parallelNum) {
             poolLines.push([]);
         }
-        poolLines[pi].push(JSON.parse(lines[i]));
+        try {
+            poolLines[pi].push(JSON.parse(lines[i]));
+        } catch (e) {
+            console.error(`[ERROR] line ${i}: "${lines[i]}"`);
+            throw e;
+        }
     }
 
     // 并发上传
