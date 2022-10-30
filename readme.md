@@ -19,6 +19,7 @@
 7. 【可选】输入单次上传条数，建议为1
 
 > Create cloud function `addRecords` on laf console with the code in `addRecords.ts`.
+> 
 > Place exported json files into `./data/`, and rename them as `<collection_name>.json`.
 >
 > Run this script with executable or source code.
@@ -32,12 +33,12 @@
 ## 可执行文件 Executable
 从Releases页面下载运行，https://github.com/sysucats/upload_laf_db/releases
 
->download executable from releases page
+> download executable from releases page
 
 ## 源码运行 Source
 安装nodejs 16.x后，启动：
 
->with nodejs 16.x installed, run the command:
+> with nodejs 16.x installed, run the command:
 
 ```
 npm install
