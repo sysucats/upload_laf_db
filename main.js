@@ -14,8 +14,8 @@ async function inputConf() {
     conf = {
         "comment": [
             "// 注释：",
-            "// 用laf console上获取信息，注意信息安全",
-            "// 注意只修改双引号里的字符！源码地址："
+            "// Laf console上获取信息，注意信息安全。终端黑框中右键可以粘贴。",
+            "// 注意只修改双引号里的字符！源码地址：https://github.com/sysucats/upload_laf_db"
         ],
     };
     console.log(conf.comment.slice(0, -1).join("\n"));
@@ -27,7 +27,7 @@ async function inputConf() {
     conf.server = await waitLine(`Laf服务器地址，server [回车默认 default "${DefaultLafServer}"]:`);
     conf.server = conf.server || DefaultLafServer;
     
-    conf.collections = (await waitLine("Laf数据表名 collections [用英文逗号分隔 split by comma ',']:")).split(',');
+    conf.collections = (await waitLine("Laf数据表名，用英文逗号分隔 collections, split by comma ',':")).split(',');
     
     conf.parallelNum = await waitLine(`并发数，parallel uploading number [回车默认 default "${DefaultUpParrallelNum}"]:`);
     conf.parallelNum = conf.parallelNum ? parseInt(conf.parallelNum) : DefaultUpParrallelNum;
@@ -49,12 +49,12 @@ async function readConfig() {
 }
 
 async function initLaf() {
-    login_cmd = `laf login -u ${conf.username} -p ${conf.password} -r ${conf.server}`
-    list_cmd = "laf list"
-    init_cmd = `laf init -s ${conf.appid}`
-    await runCmd(login_cmd);
-    await runCmd(list_cmd);
-    await runCmd(login_cmd);
+    loginCmd = `laf login -u ${conf.username} -p ${conf.password} -r ${conf.server}`
+    listCmd = "laf list"
+    initCmd = `laf init -s ${conf.appid}`
+    await runCmd(loginCmd);
+    await runCmd(listCmd);
+    await runCmd(initCmd);
 }
 
 
@@ -82,21 +82,26 @@ async function uploadLines(lines, coll, threadID) {
 async function uploadColl(coll) {
     // 读取多行json文件
     console.log(`Uploading collection: ${coll}`);
-    const lines = fs.readFileSync(`./data/${coll}.json`, 'utf-8').split("\n");
+    const collFilePath = `./data/${coll}.json`;
+    if (!await checkFileExists(collFilePath)) {
+        console.log(`[ERROR] Data file not exist! file path: "${collFilePath}"`);
+        return false;
+    }
+    const lines = fs.readFileSync(collFilePath, 'utf-8').split("\n");
 
-    var pool_lines = [];
+    var poolLines = [];
     for (let i = 0; i < lines.length; i++) {
         const pi = i % conf.parallelNum;
-        if (pool_lines.length < conf.parallelNum) {
-            pool_lines.push([]);
+        if (poolLines.length < conf.parallelNum) {
+            poolLines.push([]);
         }
-        pool_lines[pi].push(JSON.parse(lines[i]));
+        poolLines[pi].push(JSON.parse(lines[i]));
     }
 
     // 并发上传
     var pool = [];
-    for (let i = 0; i < pool_lines.length; i++) {
-        pool.push(uploadLines(pool_lines[i], coll, i));
+    for (let i = 0; i < poolLines.length; i++) {
+        pool.push(uploadLines(poolLines[i], coll, i));
     }
     await Promise.all(pool);
 }
@@ -127,5 +132,4 @@ try {
 } catch (error) {
     console.log(error);
     waitLine(`\n======== Press "Enter" to exit. ========`);
-    exit();
 }
