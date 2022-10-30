@@ -6,22 +6,29 @@
 ## 使用流程 Procedure
 在laf上创建云函数`addRecords`，代码在`addRecords.ts`。
 
->Create cloud function `addRecords` on laf console with the code in `addRecords.ts`.
-
 把导出json文件放置到`./data/`文件中，命名为`<collection_name>.json`。
-
->Place exported json files into `./data/`, and rename them as `<collection_name>.json`.
 
 使用可执行文件或源码启动脚本。
 
->Run this script with executable or source code.
+1. 输入laf用户名
+2. 输入laf密码
+3. 输入appid
+4. 【可选】输入server地址
+5. 输入collections名称，用英文逗号分隔
+6. 【可选】输入并发度，建议10~20
+7. 【可选】输入单次上传条数，建议为1
 
-1. 输入laf用户名 (input laf username)
-2. 输入laf密码 (input laf password)
-3. 输入appid (input laf appid)
-4. 输入server地址 (input laf server address)
-5. 输入collections名称，用英文逗号分隔 (input collection names, split with comma)
-
+> Create cloud function `addRecords` on laf console with the code in `addRecords.ts`.
+> Place exported json files into `./data/`, and rename them as `<collection_name>.json`.
+>
+> Run this script with executable or source code.
+> 1. input laf username
+> 2. input laf password
+> 3. input laf appid
+> 4. [optional] input laf server address
+> 5. input collection names, split with comma
+> 6. [optional] input parallel number, 10~20 is recommended
+> 7. [optional] input upload lines per time, 1 is recommended
 ## 可执行文件 Executable
 从Releases页面下载运行，https://github.com/sysucats/upload_laf_db/releases
 
