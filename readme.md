@@ -42,3 +42,7 @@ node main.js
 ```
 npm run pkgd
 ```
+
+## 已知问题 Known Problems
+* 过长的数据会超出命令行长度限制，导致运行失败
+* > because of the length limit of command line, it will fail and skip on too long data string
