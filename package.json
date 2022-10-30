@@ -1,0 +1,13 @@
+{
+    "name": "upload_laf_db",
+    "version": "1.0",
+    "type": "commonjs",
+    "dependencies": {
+        "laf-cli": "^0.8.5"
+    },
+    "bin": "./main.js",
+    "scripts": {
+        "pkg": "pkg . --out-path=dist --compress GZip",
+        "pkgd": "pkg . --out-path=dist --compress GZip -d"
+    }
+}
