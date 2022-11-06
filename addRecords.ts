@@ -1,4 +1,4 @@
-// curdOp 数据库操作云函数
+// addRecords 数据库操作云函数
 
 import cloud from '@/cloud-sdk'
 
