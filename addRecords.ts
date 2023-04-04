@@ -1,6 +1,5 @@
 // addRecords 数据库操作云函数
-
-import cloud from '@/cloud-sdk'
+import cloud from '@lafjs/cloud'
 
 const db = cloud.database();
 const _ = db.command;

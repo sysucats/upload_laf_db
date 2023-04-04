@@ -1,6 +1,4 @@
 const fs = require("node:fs");
-const spawn = require('await-spawn')
-const { resolve } = require("node:path");
 const readline = require('readline').createInterface({
     input: process.stdin,
     output: process.stdout
@@ -26,18 +24,6 @@ async function checkFileExists(filePath) {
     }
 }
 
-async function runCmd(cmd, args, quite) {
-    try {
-        const bl = await spawn(cmd, args, {shell: true})
-        if (quite) {
-            return;
-        }
-        console.log(bl.toString())
-    } catch (e) {
-        console.error("[ERROR]", cmd, args);
-    }
-}
-
 function escapeHtml(unsafe) {
     return unsafe
         .replace(/'/g, "'QUOT")
@@ -49,6 +35,6 @@ function escapeHtml(unsafe) {
 module.exports = {
     waitLine,
     checkFileExists,
-    runCmd,
+    // runCmd,
     escapeHtml
 }

@@ -1,12 +1,11 @@
 const fs = require("node:fs");
-const path = require("path");
-const {checkFileExists, waitLine, runCmd} = require("./utils");
+const {checkFileExists, waitLine} = require("./utils");
 const { exit } = require("node:process");
+const axios = require('axios').default
 
 
 // 输入conf
 const ConfPath = './config.json';
-const DefaultLafServer = "https://console.lafyun.com";
 const DefaultUpParrallelNum = 10;
 const DefaultUpStep = 1;
 async function inputConf() {
@@ -20,11 +19,7 @@ async function inputConf() {
     console.log(conf.comment.slice(0, -1).join("\n"));
 
     // 获取输入
-    conf.username = await waitLine("Laf用户名 username:");
-    conf.password = await waitLine("Laf密码 password:");
-    conf.appid = await waitLine("Laf APPID appid:");
-    conf.server = await waitLine(`Laf服务器地址，server [回车默认 default "${DefaultLafServer}"]:`);
-    conf.server = conf.server || DefaultLafServer;
+    conf.url = await waitLine("Laf addRecords 函数地址:");
     
     conf.collections = (await waitLine("Laf数据表名，用英文逗号分隔 collections, split by comma ',':")).split(',');
     
@@ -47,13 +42,6 @@ async function readConfig() {
     return true;
 }
 
-async function initLaf() {
-    await runCmd("laf", ["login", "-u", conf.username, "-p", conf.password, "-r", conf.server]);
-    await runCmd("laf", ["list"]);
-    await runCmd("laf", ["init", "-s", conf.appid]);
-}
-
-
 async function uploadLines(lines, coll, threadID) {
     const steps = lines.length / conf.step + 1;
     var count = 0;
@@ -68,12 +56,11 @@ async function uploadLines(lines, coll, threadID) {
         var batchStr = JSON.stringify(batch);
         batchStr = Buffer.from(batchStr, "utf-8").toString('base64');
 
-        var pack = JSON.stringify({
+        var pack = {
             collection: coll,
             data: batchStr
-        })
-        pack = JSON.stringify(pack);
-        await runCmd("laf", ["fn", "invoke", "addRecords", pack], true);
+        }
+        await axios.post(conf.url, pack);
         console.log(`[thread-${threadID}][coll-${coll}] ${count}/${lines.length} done.`)
     }
 }
@@ -116,9 +103,6 @@ async function main() {
         await waitLine(`\n======== [ERROR] read config error! Press "Enter" to exit. ========`);
         exit();
     }
-
-    // 初始化laf环境
-    await initLaf();
 
     // 处理多个collection
     for (var coll of conf.collections) {
