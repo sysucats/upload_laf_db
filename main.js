@@ -45,6 +45,7 @@ async function readConfig() {
 async function uploadLines(lines, coll, threadID) {
     const steps = lines.length / conf.step + 1;
     var count = 0;
+    var retry_times = 5;
     for (let i = 0; i < steps; i++) {
         const batch = lines.slice(i * conf.step, (i + 1) * conf.step);
         if (!batch.length) {
@@ -60,7 +61,15 @@ async function uploadLines(lines, coll, threadID) {
             collection: coll,
             data: batchStr
         }
-        await axios.post(conf.url, pack);
+        while (retry_times) {
+            try {
+                await axios.post(conf.url, pack);
+                break;
+            } catch {
+                console.log(`[thread-${threadID}][coll-${coll}] ${count}/${lines.length} retry...`)
+                retry_times --;
+            }
+        }
         console.log(`[thread-${threadID}][coll-${coll}] ${count}/${lines.length} done.`)
     }
 }
